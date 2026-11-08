@@ -38,5 +38,11 @@ jobs:
           test -f _site/publications/index.html
           test -f _site/cv/index.html
           test "$(find _site/publication -name index.html | wc -l)" -eq 6
-          grep -q "SynLogic" _site/index.html
+          for title in "SynLogic" "On the Perception Bottleneck of VLMs for Chart Understanding" "On the Universal Truthfulness Hyperplane Inside LLMs" "In-Context Sharpness as Alerts" "C-Eval" "Composing Parameter-Efficient Modules with Arithmetic Operations"; do
+            grep -q "$title" _site/index.html
+            grep -q "$title" _site/publications/index.html
+            grep -q "$title" _site/cv/index.html
+          done
           grep -q "jliugi@connect.ust.hk" _site/index.html
+          grep -q "MINIMAX" _site/index.html
+          if grep -rq "Paper Title Number" _site; then exit 1; fi
