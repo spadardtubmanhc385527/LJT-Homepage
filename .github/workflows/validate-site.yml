@@ -33,16 +33,29 @@ jobs:
           JEKYLL_ENV: production
       - name: Check generated pages
         run: |
-          ls _site
+          echo "Publication pages:"
+          find _site/publication -name index.html
+          count=$(find _site/publication -name index.html | wc -l)
+          echo "Publication page count: $count"
+          test "$count" -eq 6
           test -f _site/index.html
           test -f _site/publications/index.html
           test -f _site/cv/index.html
-          test "$(find _site/publication -name index.html | wc -l)" -eq 6
-          for title in "SynLogic" "On the Perception Bottleneck of VLMs for Chart Understanding" "On the Universal Truthfulness Hyperplane Inside LLMs" "In-Context Sharpness as Alerts" "C-Eval" "Composing Parameter-Efficient Modules with Arithmetic Operations"; do
-            grep -q "$title" _site/index.html
-            grep -q "$title" _site/publications/index.html
-            grep -q "$title" _site/cv/index.html
+          for page in _site/index.html _site/publications/index.html _site/cv/index.html; do
+            echo "== Checking $page =="
+            for title in "SynLogic" "On the Perception Bottleneck of VLMs for Chart Understanding" "On the Universal Truthfulness Hyperplane Inside LLMs" "In-Context Sharpness as Alerts" "C-Eval" "Composing Parameter-Efficient Modules with Arithmetic Operations"; do
+              if grep -qF "$title" "$page"; then
+                echo "OK: $title"
+              else
+                echo "MISSING: $title"
+                exit 1
+              fi
+            done
+            if grep -qF "Paper Title Number" "$page"; then
+              echo "Demo publication content found in $page"
+              exit 1
+            fi
           done
-          grep -q "jliugi@connect.ust.hk" _site/index.html
-          grep -q "MINIMAX" _site/index.html
-          if grep -rq "Paper Title Number" _site; then exit 1; fi
+          grep -qF "jliugi@connect.ust.hk" _site/index.html
+          grep -qF "MINIMAX" _site/index.html
+          echo "All checks passed."
